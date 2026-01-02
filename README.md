@@ -36,6 +36,3 @@ Feel free to open issues or submit pull requests. Keep changes focused and inclu
 
 ## License
 Add a license file if you want to specify terms (e.g., `LICENSE`).
-
----
-If you want, I can expand this README with examples, screenshots, or a development checklist.

@@ -1,0 +1,5 @@
+# saving my secrets
+.env
+
+# no PDFs needed
+*.pdf

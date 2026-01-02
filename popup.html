@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 450px;
+            min-height: 300px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .settings-icon {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .settings-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .doi-info {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .doi-label {
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .doi-value {
+            color: #333;
+            word-break: break-all;
+        }
+
+        .analyze-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 15px;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .analyze-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .verdict {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .verdict.relevant {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .verdict.irrelevant {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .verdict.highly-relevant {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+
+        .section {
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: #667eea;
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+
+        .criteria-list {
+            list-style: none;
+        }
+
+        .criteria-item {
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            font-size: 13px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .criteria-item.met {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .criteria-item.not-met {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .criteria-item::before {
+            content: '✓';
+            margin-right: 8px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .criteria-item.not-met::before {
+            content: '✗';
+        }
+
+        .reasoning {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #555;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+
+        .confidence {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .confidence-bar {
+            flex: 1;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+        }
+
+        .confidence-value {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .error {
+            padding: 15px;
+            background: #f8d7da;
+            color: #721c24;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .no-doi {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+
+        .no-doi-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <button id="settingsIconBtn" class="settings-icon" title="Settings">⚙️</button>
+            <h1>📄 Paper Analyzer</h1>
+            <p>AI-powered research paper relevance detection</p>
+        </div>
+
+        <div class="card">
+            <div id="noDOI" class="no-doi">
+                <div class="no-doi-icon">🔍</div>
+                <p><strong>No DOI detected</strong></p>
+                <p style="font-size: 12px; margin-top: 8px; opacity: 0.7;">
+                    Navigate to a research paper page with a DOI link
+                </p>
+            </div>
+
+            <div id="doiInfo" style="display: none;">
+                <div class="doi-info">
+                    <div class="doi-label">Detected DOI:</div>
+                    <div class="doi-value" id="doiValue"></div>
+                </div>
+
+                <button id="analyzeBtn" class="analyze-btn">
+                    🤖 Analyze Paper
+                </button>
+
+                <div id="loading" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Analyzing paper content...</p>
+                </div>
+
+                <div id="error" class="error" style="display: none;"></div>
+
+                <div id="results" class="results">
+                    <div id="verdict" class="verdict"></div>
+
+                    <div class="section">
+                        <div class="section-title">Confidence Score</div>
+                        <div class="confidence">
+                            <div class="confidence-bar">
+                                <div id="confidenceFill" class="confidence-fill"></div>
+                            </div>
+                            <div class="confidence-value" id="confidenceValue"></div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">Criteria Assessment</div>
+                        <ul id="criteriaList" class="criteria-list"></ul>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">Reasoning</div>
+                        <div id="reasoning" class="reasoning"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="popup.js"></script>
+</body>
+
+</html>
